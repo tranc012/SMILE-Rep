@@ -25,6 +25,7 @@ Optimizer: Adam
 
 For some note in the code MoCo_downstream, there are some true-false flags that can be passed in order to specify certain model designs: other considerations are Resnet-50 training (in which the unsupervised weights are not passed, giving a basic Resnet-50 supervised training), and MoCo-Freeze (in which the supervised weights are passed but the model is frozen, training only the linear classifier). 
 
+Personal results from various GPU configurations:
 
-
+![Figure1](https://user-images.githubusercontent.com/57649485/88983920-45703700-d29a-11ea-94e2-1398620c3de9.PNG)
 
