@@ -20,6 +20,8 @@ Optimizer: Adam
 
 Loss Functions: (Unsupervised: Noise Contrastive Estimation), (Superivised: Cross-Entropy)
 
+Evaluation Metric: AUC
+
 1) (Train_MoCo) An unsupervised stage is used with the momentum contrast model. We extract the weights from the best saved model (110 epochs). Note: This was not done on the HiPerGator implementation and is not relevant to the computational speed problem. 
 
 2) (MoCo_Downstream) These saved weights are used for a supervised downstream task (classification). In this supervised stage, we fine-tune the entire model along with a linear classifier, initialized by the saved weights from the previous unsupervised step. As mentioned before, in the HiPerGator implementation, 20% of the training data was used along with the test set, evaluated at every epoch. For the benchmark task, the speed was examined on 100 epochs. 
