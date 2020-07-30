@@ -22,6 +22,8 @@ Optimizer: Adam
 
 2) (MoCo_Downstream) These saved weights are used for a supervised downstream task (classification). In this supervised stage, we fine-tune the entire model along with a linear classifier, initialized by the saved weights from the previous unsupervised step. As mentioned before, in the HiPerGator implementation, 20% of the training data was used along with the test set, evaluated at every epoch. For the benchmark task, the speed was examined on 100 epochs. 
 
+For some note in the code MoCo_downstream, there are some true-false flags that can be passed in order to specify certain model designs: other considerations are Resnet-50 training (in which the unsupervised weights are not passed, giving a basic Resnet-50 supervised training), and MoCo-Freeze (in which the supervised weights are passed but the model is frozen, training only the linear classifier). 
+
 
 
 
