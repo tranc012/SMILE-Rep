@@ -1,4 +1,5 @@
-# SMILE-Rep
+# SMILE Lab University of Florida
+# Momentum Contrast Learning on the RSNA Dataset
 HiPerGator - A100 
 
 This is a very minimal repo. The primary code is sourced from Momentum Contrast for Unsupervised Visual Representation Learning ( https://arxiv.org/abs/1911.05722 ) with minor changes for compatiability and hyperparameter adapations. Due to the large size, I cannot provide the saved model weights nor the data directly here. 
