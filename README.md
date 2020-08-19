@@ -50,4 +50,4 @@ Personal results from various GPU configurations:
 
 ![Figure1](https://user-images.githubusercontent.com/57649485/88983920-45703700-d29a-11ea-94e2-1398620c3de9.PNG)
 
-I have been a slight change to formatting from the original run. The biggest change I made from the previous figure is by calculating the validation time on its own rather than calculating the time for the whole epoch. 
+I have made a slight change to formatting from the original run. The biggest change I made from the previous figure is by calculating the validation time on its own rather than calculating the time for the whole epoch. 
