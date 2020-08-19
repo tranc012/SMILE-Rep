@@ -22,7 +22,7 @@ Framework: PyTorch (on A100: version 1.6.0)
 
 Optimizer: Adam 
 
-Loss Functions: (Unsupervised: Noise Contrastive Estimation), (Superivised: Cross-Entropy)
+Loss Functions: (Unsupervised: Noise Contrastive Estimation), (Supervised: Cross-Entropy)
 
 Evaluation Metric: AUC
 
