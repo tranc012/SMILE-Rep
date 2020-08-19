@@ -11,7 +11,10 @@ Data: The data used was from a medical CT image Kaggle dataset (RSNA Intracrania
 
 Model Architecture: The MoCo paper utilizes a ResNet-50 style encoder. A fully connected layer is used to train a linear classifier after the unsupervised training stage. 
 
+RSNA Image Size: 224 x 224
+CIFAR10 Image Size: 32 x 32 
 Batch Size: 128 
+
 
 Learning Rate: 0.03 followed by a lr decay rate. 
 
