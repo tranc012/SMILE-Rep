@@ -26,9 +26,8 @@ Loss Functions: (Unsupervised: Noise Contrastive Estimation), (Supervised: Cross
 
 Evaluation Metric: AUC
 
-1) (Train_MoCo) An unsupervised stage is used with the momentum contrast model. We extract the weights from the best saved model (110 epochs). Note: This was not done on the HiPerGator implementation and is not relevant to the computational speed problem. 
-
-2) (MoCo_Downstream) These saved weights are used for a supervised downstream task (classification). In this supervised stage, we fine-tune the entire model along with a linear classifier, initialized by the saved weights from the previous unsupervised step. As mentioned before, in the HiPerGator implementation, 20% of the training data was used along with the test set, evaluated at every epoch. For the benchmark task, the speed was examined on 100 epochs. 
+# MoCo_Downstream
+These saved weights are used for a supervised downstream task (classification). In this supervised stage, we fine-tune the entire model along with a linear classifier, initialized by the saved weights from the previous unsupervised step. As mentioned before, in the HiPerGator implementation, 20% of the training data was used along with the test set, evaluated at every epoch. For the benchmark task, the speed was examined on 100 epochs. 
 
 For some note in the code MoCo_downstream, there are some true-false flags that can be passed in order to specify certain model designs: other considerations are Resnet-50 training (in which the unsupervised weights are not passed, giving a basic Resnet-50 supervised training), and MoCo-Freeze (in which the supervised weights are passed but the model is frozen, training only the linear classifier). 
 
@@ -36,3 +35,4 @@ Personal results from various GPU configurations:
 
 ![Figure1](https://user-images.githubusercontent.com/57649485/88983920-45703700-d29a-11ea-94e2-1398620c3de9.PNG)
 
+I have been a slight change to formatting from the original run. The biggest change I made from the previous figure is by calculating the validation time on its own rather than calculating the time for the whole epoch. 
