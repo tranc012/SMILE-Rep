@@ -24,10 +24,12 @@ from models.LinearModel import LinearClassifierResNet
 #import tensorboard_logger as tb_logger
 #from torch.utils.tensorboard import SummaryWriter
 import pdb
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 
 start_time = time.time()
 
@@ -52,7 +54,7 @@ def parse_option():
     parser.add_argument('--save_freq', type=int, default=5000, help='save frequency')
     parser.add_argument('--batch_size', type=int, default=128, help='batch_size')
     parser.add_argument('--num_workers', type=int, default=8, help='num of workers to use')
-    parser.add_argument('--epochs', type=int, default=100, help='number of training epochs')
+    parser.add_argument('--epochs', type=int, default=2, help='number of training epochs')
 
     # optimization
     parser.add_argument('--learning_rate', type=float, default=0.03, help='learning rate')
@@ -65,29 +67,47 @@ def parse_option():
 
     # model definition
     parser.add_argument('--model', type=str, default='resnet50', choices=['resnet50', 'resnet50x2', 'resnet50x4'])
-    parser.add_argument('--model_path', type=str, default='/blue/ruogu.fang/charlietran/MIRL-master/saved_weights/ckpt_epoch_110.pth', help='the model to test')
-    #parser.add_argument('--model_path', type=str, default="/home/charlietran/rsnaproject/MIRL-master/modelpath/ckpt_epoch_110.pth")
+
+
     parser.add_argument('--layer', type=int, default=6, help='which layer to evaluate')
     parser.add_argument('--resnet', action= 'store_true', help='ignore pre-trained encoder')
     parser.add_argument('--freeze', action= 'store_true', help='freeze the encoder')
 
-    # crop
-    parser.add_argument('--crop', type=float, default=0.2, help='minimum crop')
 
-    # dataset
-    parser.add_argument('--train_txt', type=str, default="/blue/ruogu.fang/charlietran/MIRL-master/experiments_configure/RSNAFTR_20F.txt")
-    #parser.add_argument('--train_txt', type=str, default="/home/charlietran/rsnaproject/MIRL-master/experiments_configure/RSNAFTR_1F.txt")
-    parser.add_argument('--val_txt', type=str, default="/blue/ruogu.fang/charlietran/MIRL-master/experiments_configure/RSNAFVAL_ALL.txt")
-    #parser.add_argument('--val_txt', type=str, default="/home/charlietran/rsnaproject/MIRL-master/experiments_configure/RSNAFVAL_ALL.txt")
+# IMPORTANT : You need to change the directories of the following here
+    #The pretrained weights was uploaded onto NVIDIA FTP along with the data
+    #The model_path directory should look something like /RSNA/pretrained_weights/ckpt_epoch_100.pth for the model_path
+    #Training.txt will specify the amount of images to use by percentage, i.e 20F = 20% of labeled data to use
+    #Validation.txt specifies the set of images for the validation set
+    #training and validation txt can be found in experiments_configure
+    #Data folder: leave as the general folder directory, i.e /RSNA, do not use /RSNA/RSNAFTRv2 , code will do this later
+
+
+    parser.add_argument('--model_path', type=str, default="/home/charlietran/rsnaproject/MIRL-master/modelpath/ckpt_epoch_110.pth")
+    #parser.add_argument('--model_path', type=str, default='/blue/ruogu.fang/charlietran/MIRL-master/saved_weights/ckpt_epoch_110.pth', help='the model to test')
+
+    #parser.add_argument('--train_txt', type=str, default="/blue/ruogu.fang/charlietran/MIRL-master/experiments_configure/RSNAFTR_20F.txt")
+    parser.add_argument('--train_txt', type=str, default="/home/charlietran/rsnaproject/MIRL-master/experiments_configure/RSNAFTR_20F.txt")
+
+    #parser.add_argument('--val_txt', type=str, default="/blue/ruogu.fang/charlietran/MIRL-master/experiments_configure/RSNAFVAL_ALL.txt")
+    parser.add_argument('--val_txt', type=str, default="/home/charlietran/rsnaproject/MIRL-master/experiments_configure/RSNAFVAL_ALL.txt")
+
+    #parser.add_argument('--data_folder', type=str, default='/orange/ruogu.fang/charlietran/RSNA/')
+    parser.add_argument('--data_folder', type=str, default="/DATA2/Data/RSNA")
+
+
+
+# -------------------------This should end the set of directories you need to change -------------------------------------------------------
+    # I believe that the save_path and tb_path do not matter and can be runnable without
+    # If save_path and tb_path throw an error, create an arbitray new folder and link those directories there
+
+    # parser.add_argument('--save_path', type=str, default='/blue/ruogu.fang/charlietran/MIRL-master/save_path/')
+    parser.add_argument('--save_path', type=str, default=".")
+    # parser.add_argument('--tb_path', type=str, default='/blue/ruogu.fang/charlietran/MIRL-master/tb_path/')
+    parser.add_argument('--tb_path', type=str, default=".")
+
     parser.add_argument('--dataset', type=str, default='imagenet100', choices=['imagenet100', 'imagenet'])
-
-    parser.add_argument('--data_folder', type=str, default='/orange/ruogu.fang/charlietran/RSNA/')
-    #parser.add_argument('--data_folder', type=str, default="/DATA2/Data/RSNA_v2")
-    parser.add_argument('--save_path', type=str, default='/blue/ruogu.fang/charlietran/MIRL-master/save_path/')
-    #parser.add_argument('--save_path', type=str, default="/home/charlietran/rsnaproject/MIRL-master/savepath")
-    parser.add_argument('--tb_path', type=str, default='/blue/ruogu.fang/charlietran/MIRL-master/tb_path/')
-    #parser.add_argument('--tb_path', type=str, default="/home/charlietran/rsnaproject/MIRL-master/tbpath")
-    # augmentation
+    parser.add_argument('--crop', type=float, default=0.2, help='minimum crop')
     parser.add_argument('--aug', type=str, default='CJ', choices=['NULL', 'CJ'])
     # add BN
     parser.add_argument('--bn', action='store_true', help='use parameter-free BN')
@@ -162,7 +182,11 @@ def main():
     c_train = f_train.readlines()
     f_train.close()
     trainfiles = [s.replace('\n', '') for s in c_train]
-    csv_label = "/blue/ruogu.fang/charlietran/MIRL-master/RSNA_MoCo/train.csv"
+
+
+
+
+    csv_label = "train.csv"
     #csv_label = "train.csv"
     train_dataset = RSNA_Data_finetune(
         trainfiles, csv_label, train_folder, train_transform)
@@ -220,9 +244,10 @@ def main():
     cudnn.benchmark = True
     args.start_epoch = 1
     train_epoch_time = []
-    whole_epoch_time = []
+    validation_epoch_time = []
     epoch_counter = []
-    cumulative_time_counter = []
+    training_time_counter = []
+    validation_time_counter = []
     #logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
     #logger = SummaryWriter(logdir=args.tb_folder, flush_secs = 2 )
     time_log = []
@@ -239,36 +264,29 @@ def main():
         print("==> testing...")
         auc, mean_auc, test_loss = validate_multilabel(val_loader, model, classifier, criterion, args)
         time3 = time.time()
-        whole_epoch_time.append(time3 - time1)
+        validation_epoch_time.append(time3 - time2)
         epoch_counter.append(epoch)
-        print('The Average Time for Training Epoch is', np.mean(train_epoch_time))
-        print('The Average Time Per Epoch is', np.mean(whole_epoch_time))
-        cumulative_time_counter.append(sum(whole_epoch_time))
-        print('The Cumulative Time is', sum(whole_epoch_time))
+        print('The Average Time for Training Epoch is -----', np.mean(train_epoch_time))
+        print('The Average Time for Validation Per Epoch-----', np.mean(validation_epoch_time))
+        training_time_counter.append(sum(train_epoch_time))
+        print('The Cumulative Time for Training is ----', sum(train_epoch_time))
+        validation_time_counter.append(sum(validation_epoch_time))
+        print('The Cumulative Time for Validation  ----', sum(validation_epoch_time))
         plt.cla()
         plt.plot(epoch_counter, train_epoch_time)
         plt.title('Training Time per Epoch (HiPerGator 2 A100 GPU)')
         plt.xlabel('Epochs')
         plt.ylabel('Training Epoch Time (s)')
         plt.draw()
-        plt.savefig('2_A1004CorePyTorch1.5_Epoch_Train_Time.pdf')
+        plt.savefig('2_A1004CorePyTorch_Epoch_Train_Time.pdf')
 
         plt.cla()
-        plt.plot(epoch_counter, whole_epoch_time)
+        plt.plot(epoch_counter, validation_epoch_time)
         plt.title('Time Per Epoch (Training + Validation)(HiPerGator 2 A100 GPU)')
         plt.xlabel('Epochs')
         plt.ylabel('Time (s)')
         plt.draw()
-        plt.savefig('2_A1004CorePyTorch1.5_Epoch_Whole_Time.pdf')
-
-        plt.cla()
-        plt.plot(epoch_counter, cumulative_time_counter)
-        plt.title('Cumulative Time vs Epochs (HiPerGator 2 A100 GPU)')
-        plt.xlabel('Epochs')
-        plt.ylabel('Cumulative Time')
-        plt.draw()
-        plt.savefig('2_A1004CorePyTorch1.5_Cumulative_Time_Whole_Epoch.pdf')
-
+        plt.savefig('2_A1004CorePyTorch_Epoch_Whole_Time.pdf')
 
         if mean_auc > best_test_auc:
             best_test_auc = mean_auc
@@ -287,8 +305,12 @@ def main():
         print('best test auc is:', best_test_auc)
         pass
     #logger.close()
-    print("--- %s seconds ---" % (time.time() - start_time))
-
+    print('--------------    Time Breakdown Report ----------------')
+    print('------ Average Supervised Train Time:', np.mean(train_epoch_time))
+    print('------ Average Validation Time:', np.mean(validation_epoch_time))
+    print('------ Total Time For Supervised Training', sum(train_epoch_time))
+    print('------ Total Time for Validation', sum(validation_epoch_time))
+    print("------ Total Time For Code", (time.time() - start_time))
 def set_lr(optimizer, lr):
     """
     set the learning rate
